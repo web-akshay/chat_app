@@ -1,5 +1,5 @@
-import 'package:chat_app/models/user.dart' as user;
-import 'package:chat_app/values/collections.dart';
+import '../models/user.dart' as user;
+import '../values/collections.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -32,14 +32,26 @@ class UsersHelper {
     return null;
   }
 
+  // Future<user.User?> getCurrentUserData() async {
+  //   final currentAuthId = FirebaseAuth.instance.currentUser!.uid;
+  //   final currentUserData = await FirebaseFirestore.instance
+  //       .collection(collectionUsers)
+  //       .where('authId', isEqualTo: currentAuthId)
+  //       .get()
+  //       .then((value) => user.User.fromJson(value.docs.first.data()));
+
+  //   return currentUserData;
+  // }
+
   Future<user.User?> getCurrentUserData() async {
     final currentAuthId = FirebaseAuth.instance.currentUser!.uid;
-    final currentUserData = await FirebaseFirestore.instance
-        .collection(collectionUsers)
-        .where('authId', isEqualTo: currentAuthId)
-        .get()
-        .then((value) => user.User.fromJson(value.docs.first.data()));
+    final currentUser = getUserDetails(userId: currentAuthId);
+    return currentUser;
+  }
 
-    return currentUserData;
+  Future<void> createUser({required user.User userData}) async {
+    final userInstance =
+        FirebaseFirestore.instance.collection(collectionUsers).doc(userData.id);
+    await userInstance.set(userData.toJson());
   }
 }

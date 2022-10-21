@@ -1,8 +1,9 @@
-import 'package:chat_app/helpers/user_helper.dart';
-import 'package:chat_app/models/message.dart';
-import 'package:chat_app/models/user.dart';
-import 'package:chat_app/widgets/loader_widget.dart';
+import '../helpers/user_helper.dart';
+import '../models/message.dart';
+import '../models/user.dart';
+import '../widgets/loader_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class ChatBubbleWidget extends StatefulWidget {
   const ChatBubbleWidget(
@@ -41,7 +42,7 @@ class _ChatBubbleWidgetState extends State<ChatBubbleWidget> {
   Widget build(BuildContext context) {
     final currentUser = widget.currentUserId == widget.message.senderId;
     return _isLoading
-        ? LoaderWidget()
+        ? const LoaderWidget()
         : Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -57,46 +58,67 @@ class _ChatBubbleWidgetState extends State<ChatBubbleWidget> {
                     : MainAxisAlignment.start,
                 children: [
                   if (!currentUser)
-                    const CircleAvatar(
-                      radius: 30,
+                    CircleAvatar(
+                      radius: 20,
                       backgroundColor: Colors.yellow,
-                      child: FlutterLogo(
-                          // size: 40,
-                          ),
+                      backgroundImage: _userData?.imageUrl == null
+                          ? null
+                          : NetworkImage(
+                              _userData!.imageUrl!,
+                            ),
+                      child: _userData?.imageUrl != null
+                          ? null
+                          : const FlutterLogo(),
                     ),
                   UnconstrainedBox(
                     alignment: Alignment.centerLeft,
-                    child: Container(
-                      width: 200,
-                      margin: EdgeInsets.only(
-                        left: currentUser ? 0 : 10,
-                        right: currentUser ? 10 : 0,
-                        top: 5,
-                        bottom: 5,
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20.0, vertical: 20.0),
-                      decoration: BoxDecoration(
-                        color: Colors.grey,
-                        borderRadius: BorderRadius.only(
-                          topLeft: currentUser
-                              ? const Radius.circular(7)
-                              : const Radius.circular(0),
-                          topRight: currentUser
-                              ? const Radius.circular(0)
-                              : const Radius.circular(7),
-                          bottomRight: currentUser
-                              ? const Radius.circular(27)
-                              : const Radius.circular(7),
-                          bottomLeft: !currentUser
-                              ? const Radius.circular(27)
-                              : const Radius.circular(7),
-
-                          // bottomLeft: !isMe ? Radius.circular(0) : Radius.circular(12),
-                          // bottomRight: isMe ? Radius.circular(0) : Radius.circular(12),
+                    child: Stack(
+                      children: [
+                        Container(
+                          width: 200,
+                          margin: EdgeInsets.only(
+                            left: currentUser ? 0 : 10,
+                            right: currentUser ? 10 : 0,
+                            top: 5,
+                            bottom: 5,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20.0, vertical: 20.0),
+                          decoration: BoxDecoration(
+                            color: currentUser
+                                ? Colors.blue[100]
+                                : Colors.grey[300],
+                            borderRadius: BorderRadius.only(
+                              topLeft: currentUser
+                                  ? const Radius.circular(7)
+                                  : const Radius.circular(0),
+                              topRight: currentUser
+                                  ? const Radius.circular(0)
+                                  : const Radius.circular(7),
+                              bottomRight: currentUser
+                                  ? const Radius.circular(27)
+                                  : const Radius.circular(7),
+                              bottomLeft: !currentUser
+                                  ? const Radius.circular(27)
+                                  : const Radius.circular(7),
+                            ),
+                          ),
+                          child: Text(widget.message.message!),
                         ),
-                      ),
-                      child: Text(widget.message.message!),
+                        Positioned(
+                          right: currentUser ? null : 7,
+                          left: !currentUser ? null : 7,
+                          bottom: 7,
+                          child: Text(
+                            DateFormat("h:mm a")
+                                .format(
+                                    DateTime.parse(widget.message.createdAt!))
+                                .toString(),
+                            style: TextStyle(
+                                fontSize: 12.0, color: Colors.grey[600]),
+                          ),
+                        )
+                      ],
                     ),
                   ),
                 ],

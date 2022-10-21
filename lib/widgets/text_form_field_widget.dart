@@ -10,6 +10,7 @@ class TextFormFieldWidget extends StatelessWidget {
       this.initialValue,
       this.validator,
       this.onSaved,
+      this.readOnly = false,
       Key? key})
       : super(key: key);
 
@@ -20,6 +21,7 @@ class TextFormFieldWidget extends StatelessWidget {
   final TextInputAction? textInputAction;
   final bool obscureText;
   final String? initialValue;
+  final bool readOnly;
   final String? Function(String?)? validator;
   final void Function(String?)? onSaved;
 
@@ -64,6 +66,7 @@ class TextFormFieldWidget extends StatelessWidget {
       initialValue: initialValue,
       validator: validator,
       cursorColor: Colors.grey,
+      readOnly: readOnly,
     );
   }
 }

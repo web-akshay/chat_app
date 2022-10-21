@@ -1,6 +1,5 @@
-import 'package:chat_app/models/group.dart';
-import 'package:chat_app/models/user.dart';
-import 'package:chat_app/values/app_routes.dart';
+import '../models/group.dart';
+import '../values/app_routes.dart';
 import 'package:flutter/material.dart';
 
 class GroupTileWidget extends StatelessWidget {
@@ -9,20 +8,41 @@ class GroupTileWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: const EdgeInsets.only(left: 0),
-      leading: const CircleAvatar(
-        radius: 50,
-        backgroundColor: Colors.yellow,
-        child: FlutterLogo(
-            // size: 40,
-            ),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: ListTile(
+        contentPadding: const EdgeInsets.only(left: 0),
+        leading: CircleAvatar(
+          radius: 50,
+          backgroundColor: Colors.yellow,
+          backgroundImage: groupData?.imageUrl == null
+              ? null
+              : NetworkImage(groupData!.imageUrl!),
+          child: groupData?.imageUrl != null ? null : const FlutterLogo(),
+        ),
+        trailing: IconButton(
+          onPressed: () {},
+          icon: PopupMenuButton(
+            itemBuilder: (ctx) => [
+              const PopupMenuItem(
+                value: 'update',
+                child: Text('Update info'),
+              ),
+            ],
+            onSelected: (value) {
+              if (value == 'update') {
+                Navigator.of(context).pushNamed(appRouteAddUpdateGroupScreen,
+                    arguments: groupData);
+              }
+            },
+          ),
+        ),
+        title: Text(groupData!.name!),
+        onTap: () {
+          Navigator.of(context)
+              .pushNamed(appRouteChatScreen, arguments: groupData);
+        },
       ),
-      title: Text(groupData!.name!),
-      onTap: () {
-        Navigator.of(context)
-            .pushNamed(appRouteChatScreen, arguments: groupData);
-      },
     );
   }
 }

@@ -1,6 +1,6 @@
-import 'package:chat_app/common_methods/common_methods.dart';
-import 'package:chat_app/values/app_routes.dart';
-import 'package:chat_app/widgets/app_bar_widget.dart';
+import '../common_methods/common_methods.dart';
+import '../values/app_routes.dart';
+import '../widgets/app_bar_widget.dart';
 import 'package:flutter/material.dart';
 
 class DrawerWidget extends StatelessWidget {
@@ -41,6 +41,7 @@ class DrawerWidget extends StatelessWidget {
               icon: Icons.person,
               title: 'Profile',
               onTap: () async {
+                Navigator.of(context).pop();
                 Navigator.of(context).pushNamed(appRouteProfileScreen);
               }),
           _rowTileContainer(

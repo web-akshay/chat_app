@@ -1,4 +1,4 @@
-import 'package:chat_app/values/colors.dart';
+import '../values/colors.dart';
 import 'package:flutter/material.dart';
 
 class CurvedHeaderConyainerWidget extends StatelessWidget {

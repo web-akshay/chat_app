@@ -1,47 +1,52 @@
+import 'dart:io';
+
 import '../common_methods/common_methods.dart';
 import '../common_methods/field_validators.dart';
+import '../helpers/groups_helper.dart';
 import '../helpers/image_helper.dart';
-import '../helpers/user_helper.dart';
-import '../models/user.dart' as user;
-import '../values/collections.dart';
+import '../models/group.dart';
 import '../widgets/app_bar_widget.dart';
 import '../widgets/curved_header_container_widget.dart';
 import '../widgets/loader_widget.dart';
 import '../widgets/round_button_widget.dart';
 import '../widgets/text_form_field_widget.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'dart:io';
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+class AddUpdateGroupScreen extends StatefulWidget {
+  const AddUpdateGroupScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  State<AddUpdateGroupScreen> createState() => _AddUpdateGroupScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
-  File? _pickedImage;
-
-  user.User? _currentUserData;
-  bool _isLoading = true;
-
+class _AddUpdateGroupScreenState extends State<AddUpdateGroupScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey();
 
-  @override
-  void initState() {
-    _getData();
-    super.initState();
-  }
+  Group _groupData = Group(
+    id: null,
+    name: null,
+    createdAt: null,
+    imageUrl: null,
+  );
+  File? _pickedImage;
 
-  Future<void> _getData() async {
-    setState(() {
-      _isLoading = true;
-    });
-    _currentUserData = await UsersHelper().getCurrentUserData();
-    setState(() {
-      _isLoading = false;
-    });
+  bool _isLoading = true;
+  bool _isInit = true;
+
+  @override
+  void didChangeDependencies() async {
+    if (_isInit) {
+      final args = ModalRoute.of(context)!.settings.arguments as Group?;
+      if (args != null) {
+        _groupData = args;
+      }
+      setState(() {
+        _isLoading = false;
+        _isInit = false;
+      });
+    }
+
+    super.didChangeDependencies();
   }
 
   Widget _profileImageContainer({String? imageUrl}) {
@@ -72,13 +77,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
             shape: BoxShape.circle,
           ),
-          child: imageUrl == null && _pickedImage == null
-              ? Icon(
-                  Icons.person,
-                  size: 50,
-                  color: Colors.grey[600],
-                )
-              : null,
         ),
         Positioned(
           bottom: 0,
@@ -115,41 +113,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _submitForm() async {
+  _submitForm() async {
+    final navigator = Navigator.of(context);
     FocusScope.of(context).unfocus();
+
     if (!_formKey.currentState!.validate()) {
       return;
     }
-    if (_pickedImage != null) {
-      _currentUserData!.imageUrl = await ImageHelper()
-          .uploadImage(directoryName: 'userimages', imageFile: _pickedImage!);
-    }
-
     _formKey.currentState!.save();
-    setState(() {
-      _isLoading = true;
-    });
-    try {
-      if (_currentUserData!.id != null) {
-        final userInstance = FirebaseFirestore.instance
-            .collection(collectionUsers)
-            .doc(_currentUserData!.id);
-        await userInstance.update(_currentUserData!.toJson());
-      }
 
-      if (!mounted) return;
-      displaySnackbar(context: context, msg: 'Profile Updated');
-      Navigator.of(context).pop();
-    } catch (error) {
-      const errorMessage = 'Something went wrong';
-      if (mounted) {
-        showErrorDialog(errorMessage, context);
-      }
+    if (_pickedImage != null) {
+      _groupData.imageUrl = await ImageHelper()
+          .uploadImage(directoryName: 'groupimages', imageFile: _pickedImage!);
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      final status =
+          await GroupsHelper().createUpdateGroup(groupData: _groupData);
+
+      if (mounted) displaySnackbar(context: context, msg: status);
+
+      navigator.pop();
+    } catch (error) {
+      var message = 'Something went wrong!';
+      if (mounted) displaySnackbar(context: context, msg: message);
+    }
   }
 
   @override
@@ -165,40 +157,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    const CurvedHeaderConyainerWidget(
-                      title: 'My Profile',
-                    ),
-                    _profileImageContainer(
-                        imageUrl: _currentUserData?.imageUrl),
+                    CurvedHeaderConyainerWidget(
+                        title:
+                            '${_groupData.id != null ? 'Update' : 'Create'} Group'),
+                    _profileImageContainer(imageUrl: _groupData.imageUrl),
                     Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 20.0),
+                          horizontal: 20, vertical: 30.0),
                       child: TextFormFieldWidget(
+                        initialValue: _groupData.name,
                         lableText: 'Name',
-                        initialValue: _currentUserData!.name,
                         icon: Icons.group_outlined,
                         validator: nameValidator,
                         textInputAction: TextInputAction.next,
                         onSaved: (value) {
-                          _currentUserData!.name = value;
+                          _groupData.name = value;
                         },
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 5.0),
-                      child: TextFormFieldWidget(
-                        lableText: 'Email',
-                        initialValue: _currentUserData!.email,
-                        icon: Icons.group_outlined,
-                        readOnly: true,
-                      ),
-                    ),
-                    const SizedBox(height: 30.0),
+                    const SizedBox(height: 50),
                     RoundButtonWidget(
-                      label: 'Update Profile',
-                      padding: const EdgeInsets.symmetric(horizontal: 60.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 50),
                       onPressed: _submitForm,
+                      label: _groupData.id != null ? 'Update' : 'Create',
                     ),
                   ],
                 ),

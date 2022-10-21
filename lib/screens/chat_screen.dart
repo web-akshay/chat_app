@@ -1,14 +1,13 @@
-import 'package:chat_app/helpers/chat_helper.dart';
-import 'package:chat_app/helpers/user_helper.dart';
-import 'package:chat_app/models/group.dart';
-import 'package:chat_app/models/message.dart';
-import 'package:chat_app/models/user.dart' as user;
-import 'package:chat_app/values/collections.dart';
-import 'package:chat_app/widgets/app_bar_widget.dart';
-import 'package:chat_app/widgets/chat_bubble_widget.dart';
-import 'package:chat_app/widgets/loader_widget.dart';
+import '../helpers/chat_helper.dart';
+import '../helpers/user_helper.dart';
+import '../models/group.dart';
+import '../models/message.dart';
+import '../models/user.dart' as user;
+import '../values/collections.dart';
+import '../widgets/app_bar_widget.dart';
+import '../widgets/chat_bubble_widget.dart';
+import '../widgets/loader_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -31,7 +30,6 @@ class _ChatScreenState extends State<ChatScreen> {
         _isLoading = true;
       });
       _groupData = ModalRoute.of(context)!.settings.arguments as Group;
-      print(_groupData!.toJson());
      _currentUserData = await UsersHelper().getCurrentUserData();
 
       setState(() {
@@ -42,16 +40,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
     super.didChangeDependencies();
   }
-
-  // Future<void> _getCurrentUserData() async {
-  //   final currentAuthId = FirebaseAuth.instance.currentUser!.uid;
-  //   print('auth id $currentAuthId');
-  //   _currentUserData = await FirebaseFirestore.instance
-  //       .collection(collectionUsers)
-  //       .where('authId', isEqualTo: currentAuthId)
-  //       .get()
-  //       .then((value) => user.User.fromJson(value.docs.first.data()));
-  // }
 
   Future<void> _sendMessage() async {
     final messageInstance =
@@ -96,12 +84,11 @@ class _ChatScreenState extends State<ChatScreen> {
                           itemCount: chatList!.length,
                           itemBuilder: (ctx, index) => ChatBubbleWidget(
                               currentUserId: _currentUserData!.id!,
-                              // receiverUser: null,
                               message: chatList[index]));
                     },
                   ),
                 ),
-                Divider(),
+                const Divider(),
                 Padding(
                   padding:
                       const EdgeInsets.only(left: 20, right: 20, bottom: 10),
@@ -115,11 +102,6 @@ class _ChatScreenState extends State<ChatScreen> {
                           enableSuggestions: true,
                           decoration: const InputDecoration(
                               labelText: 'Send a message...'),
-                          // onChanged: (value) {
-                          //   setState(() {
-                          //     _enteredMessage = value;
-                          //   });
-                          // },
                         ),
                       ),
                       IconButton(

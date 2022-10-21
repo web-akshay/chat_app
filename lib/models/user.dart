@@ -4,7 +4,6 @@ class User {
   String? email;
   String? password;
   String? imageUrl;
-  String? authId;
 
   User({
     this.id,
@@ -12,7 +11,6 @@ class User {
     this.email,
     this.imageUrl,
     this.password,
-    this.authId,
   });
 
   Map<String, dynamic> toJson() => {
@@ -20,7 +18,6 @@ class User {
         'name': name,
         'email': email,
         'imageUrl': imageUrl,
-        'authId': authId,
       };
 
   static User fromJson(Map<String, dynamic> json) => User(
@@ -28,6 +25,5 @@ class User {
         name: json['name'],
         email: json['email'],
         imageUrl: json['imageUrl'],
-        authId: json['authId'],
       );
 }

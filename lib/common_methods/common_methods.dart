@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 String removeSpaceFromString(String value) {
   final string = value.replaceAll(RegExp(r"\s+"), "");
@@ -43,9 +44,9 @@ Future<void> showExitDialogBox(BuildContext context) async {
                 Navigator.of(ctx).pop();
                 await FirebaseAuth.instance.signOut();
 
-                // final GoogleSignIn googleSignIn =
-                //     GoogleSignIn(scopes: <String>["email"]);
-                // await googleSignIn.signOut();
+                final GoogleSignIn googleSignIn =
+                    GoogleSignIn(scopes: <String>["email"]);
+                await googleSignIn.signOut();
               },
             ),
           ],
@@ -53,7 +54,6 @@ Future<void> showExitDialogBox(BuildContext context) async {
       ],
     ),
   );
-  
 }
 
 Future<void> showErrorDialog(String message, BuildContext context) async {
